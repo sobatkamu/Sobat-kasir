@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobat Kamu - POS System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1>Sobat Kamu - Kasir</h1>
+    <div class="tabs">
+        <button onclick="showTab('order')" class="tab-btn active">Pesan</button>
+        <button onclick="showTab('history')" class="tab-btn">Riwayat & Pendapatan</button>
+    </div>
+</header>
+
+<div id="order-tab" class="tab-content active">
+    <div class="container">
+        <h2 class="category-title">Menu Makanan</h2>
+        <div class="menu-grid" id="food-menu"></div>
+        
+        <h2 class="category-title">Menu Minuman</h2>
+        <div class="menu-grid" id="drink-menu"></div>
+    </div>
+</div>
+
+<div id="history-tab" class="tab-content">
+    <div class="container">
+        <div class="income-card">
+            <h3>Total Pemasukan Hari Ini</h3>
+            <h2 id="total-income">Rp 0</h2>
+        </div>
+        
+        <h2 class="category-title">Riwayat Pesanan</h2>
+        <div id="history-list"></div>
+        <button class="btn-clear" onclick="clearHistory()">Hapus Semua Riwayat</button>
+    </div>
+</div>
+
+<div class="checkout-bar" id="checkout-bar">
+    <div>
+        <div class="total-label">Total Item: <span id="cart-count">0</span></div>
+        <div class="total-price" id="current-total">Rp 0</div>
+    </div>
+    <button class="btn-checkout" onclick="processOrder()">Simpan Pesanan</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
