@@ -5,64 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sobat Kasir</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="kasir-body">
 
-<div class="dashboard-container">
-    <div class="pos-input-section glass">
-        <h2>🛒 Sobat Kasir</h2>
-        <div class="menu-grid-kasir">
-            <button class="menu-item-btn" onclick="addToOrder('Nasi Chiken BaBol', 18000)">Nasi BaBol</button>
-            <button class="menu-item-btn" onclick="addToOrder('Roti Bakar', 10000)">Roti Bakar</button>
-            <button class="menu-item-btn" onclick="addToOrder('Burger Sobat Komplit', 35000)">Burger Komplit</button>
-            <button class="menu-item-btn" onclick="addToOrder('Coklat Blend Milk', 12000)">Coklat Milk</button>
-        </div>
-    </div>
-
-    <div class="billing-section glass">
-        <h3>Pesanan Aktif</h3>
-        <div id="active-list" class="active-list"></div>
+<div class="dashboard">
+    <section class="menu-panel glass">
+        <header class="panel-header">
+            <h2>🛒 Sobat Kasir</h2>
+            <p>Klik menu untuk menambah pesanan</p>
+        </header>
         
-        <div class="payment-box">
-            <div class="calc-row"><span>Total:</span> <span id="display-total-kasir">Rp 0</span></div>
-            <div class="calc-row">
-                <span>Bayar:</span>
-                <input type="number" id="cash-input" placeholder="0" oninput="calculateChange()">
+        <div class="menu-tabs">
+            <h3 class="category-tag">Makanan & Snack</h3>
+            <div class="pos-grid">
+                <button class="pos-btn" onclick="addToOrder('Nasi Chiken BaBol', 18000)">Nasi BaBol</button>
+                <button class="pos-btn" onclick="addToOrder('Burger Kamu', 20000)">Burger Kamu</button>
+                <button class="pos-btn" onclick="addToOrder('Roti Bakar', 10000)">Roti Bakar</button>
+                <button class="pos-btn" onclick="addToOrder('Roti Bakar Moza', 15000)">Roti Moza</button>
+                <button class="pos-btn" onclick="addToOrder('Roti Pizza', 20000)">Roti Pizza</button>
+                <button class="pos-btn" onclick="addToOrder('Kentang Goreng', 15000)">Kentang</button>
+                <button class="pos-btn" onclick="addToOrder('Stick Pisang', 15000)">Stick Pisang</button>
+                <button class="pos-btn" onclick="addToOrder('Banana Roll', 10000)">Banana Roll</button>
+                <button class="pos-btn" onclick="addToOrder('Burger Sobat Komplit', 35000)">Burger Komplit</button>
             </div>
-            <div class="calc-row highlight"><span>Kembalian:</span> <span id="display-change">Rp 0</span></div>
-            <button class="btn-finalize" onclick="finalizeTransaction()">Selesaikan Transaksi</button>
+
+            <h3 class="category-tag">Minuman Blend</h3>
+            <div class="pos-grid">
+                <button class="pos-btn" onclick="addToOrder('Mitcha Sobat', 10000)">Mitcha</button>
+                <button class="pos-btn" onclick="addToOrder('Coklat Blend', 10000)">Coklat Blend</button>
+                <button class="pos-btn" onclick="addToOrder('Coklat Blend Milk', 12000)">Coklat Milk</button>
+                <button class="pos-btn" onclick="addToOrder('Vanilla Blend', 10000)">Vanilla Blend</button>
+            </div>
         </div>
+    </section>
+
+    <section class="billing-panel glass">
+        <h3>Pesanan Aktif</h3>
+        <div id="active-list" class="order-scroll"></div>
+        
+        <div class="checkout-box glass">
+            <div class="bill-row"><span>Total</span> <span id="total-val">Rp 0</span></div>
+            <div class="bill-row">
+                <span>Tunai</span> 
+                <input type="number" id="cash-in" placeholder="0" oninput="runCalculator()">
+            </div>
+            <div class="bill-row highlight-yellow"><span>Kembali</span> <span id="change-val">Rp 0</span></div>
+            <button class="btn-confirm" onclick="processOrder()">Selesaikan Transaksi</button>
+        </div>
+
+        <div class="mini-chart">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </section>
+</div>
+
+<div class="report-area glass">
+    <div class="report-nav">
+        <h3>Laporan Penjualan Harian</h3>
+        <div class="nav-btns">
+            <button class="btn-action excel" onclick="exportData()">📦 Ekspor Excel</button>
+            <button class="btn-action reset" onclick="clearAllData()">⚠️ Reset Data</button>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>Waktu Detail</th>
+                    <th>Rincian Item</th>
+                    <th>Total Bayar</th>
+                </tr>
+            </thead>
+            <tbody id="history-rows"></tbody>
+        </table>
     </div>
 </div>
 
-<div class="report-container glass">
-    <div class="report-header">
-        <h3>📊 Laporan & Analisis</h3>
-        <div class="report-btns">
-            <button class="btn-excel" onclick="exportToExcel()">Ekspor ke Excel</button>
-            <button class="btn-reset" onclick="resetHistory()">Reset Riwayat</button>
-        </div>
-    </div>
-
-    <div class="analytics-grid">
-        <div class="chart-box"><canvas id="salesChart"></canvas></div>
-        <div class="table-box">
-            <table id="history-table">
-                <thead>
-                    <tr>
-                        <th>Waktu</th>
-                        <th>Item</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody id="history-body"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script src="script-kasir.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
