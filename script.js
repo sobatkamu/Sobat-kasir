@@ -1,113 +1,134 @@
-const menuData = [
-    { id: 1, name: "Nasi Chiken BaBol", price: 18000, cat: "makanan" },
-    { id: 2, name: "Burger Kamu", price: 20000, cat: "makanan" },
-    { id: 3, name: "Nasi Goreng", price: 15000, cat: "makanan" },
-    { id: 4, name: "Mitcha Sobat", price: 10000, cat: "minuman" },
-    { id: 5, name: "Es Jeruk", price: 7000, cat: "minuman" },
-    { id: 6, name: "Nutrisari", price: 7000, cat: "minuman" }
-];
+let currentOrder = {};
+let saleHistory = JSON.parse(localStorage.getItem('sobat_history')) || [];
 
-let cart = [];
-let allOrders = JSON.parse(localStorage.getItem('sobatPOS_Final')) || [];
-
-function renderMenu() {
-    const foodDiv = document.getElementById('food-menu');
-    const drinkDiv = document.getElementById('drink-menu');
-    foodDiv.innerHTML = ""; drinkDiv.innerHTML = "";
-    
-    menuData.forEach(item => {
-        const card = `
-            <div class="menu-card">
-                <h4>${item.name}</h4>
-                <p class="menu-price">Rp ${item.price.toLocaleString()}</p>
-                <button class="btn-add" onclick="addToCart(${item.id})">Tambah</button>
-            </div>`;
-        if(item.cat === 'makanan') foodDiv.innerHTML += card;
-        else drinkDiv.innerHTML += card;
-    });
+// 1. Tambah Pesanan
+function addToOrder(name, price) {
+    if (currentOrder[name]) {
+        currentOrder[name].qty += 1;
+    } else {
+        currentOrder[name] = { price, qty: 1 };
+    }
+    renderOrder();
 }
 
-function addToCart(id) {
-    const item = menuData.find(m => m.id === id);
-    cart.push(item);
-    updateCartUI();
+// 2. Kurangi Pesanan & Auto-Delete 10 Detik
+function removeOne(name) {
+    if (currentOrder[name]) {
+        currentOrder[name].qty -= 1;
+        if (currentOrder[name].qty <= 0) {
+            // Logika Cancel: Hapus setelah 10 detik jika tetap nol
+            setTimeout(() => {
+                if (currentOrder[name] && currentOrder[name].qty <= 0) {
+                    delete currentOrder[name];
+                    renderOrder();
+                }
+            }, 10000);
+        }
+    }
+    renderOrder();
 }
 
-function updateCartUI() {
-    const total = cart.reduce((s, i) => s + i.price, 0);
-    document.getElementById('cart-count').innerText = cart.length;
-    document.getElementById('current-total').innerText = "Rp " + total.toLocaleString();
-}
-
-function processOrder() {
-    if (cart.length === 0) return alert("Keranjang kosong!");
-    const newOrder = {
-        id: Date.now(),
-        items: [...cart],
-        total: cart.reduce((s, i) => s + i.price, 0),
-        status: 'pending',
-        time: new Date().toLocaleTimeString()
-    };
-    allOrders.unshift(newOrder);
-    localStorage.setItem('sobatPOS_Final', JSON.stringify(allOrders));
-    cart = []; updateCartUI();
-    alert("Pesanan Disimpan!");
-    renderHistory();
-}
-
-function updateStatus(orderId, status) {
-    allOrders = allOrders.map(o => o.id === orderId ? {...o, status} : o);
-    localStorage.setItem('sobatPOS_Final', JSON.stringify(allOrders));
-    renderHistory();
-}
-
-function renderHistory() {
-    const list = document.getElementById('history-list');
-    const incomeDisplay = document.getElementById('total-income');
+// 3. Render Daftar Pesanan Aktif
+function renderOrder() {
+    const list = document.getElementById('active-list');
     list.innerHTML = "";
-    let totalIncome = 0;
+    let total = 0;
 
-    allOrders.forEach(order => {
-        if(order.status === 'done') totalIncome += order.total;
-        
-        // Logika Pengelompokan Item & Kategori
-        const groupItems = (items) => {
-            const counts = {};
-            items.forEach(i => counts[i.name] = (counts[i.name] || 0) + 1);
-            return Object.entries(counts).map(([name, qty]) => `${name} (x${qty})`);
-        };
+    for (let name in currentOrder) {
+        const item = currentOrder[name];
+        if (item.qty > 0) {
+            total += item.price * item.qty;
+            list.innerHTML += `
+                <div class="order-row">
+                    <span>${name} (x${item.qty})</span>
+                    <button class="btn-min" onclick="removeOne('${name}')">-</button>
+                </div>`;
+        } else {
+            list.innerHTML += `<div class="order-row cancel"><span>${name} (Dibatalkan...)</span></div>`;
+        }
+    }
+    document.getElementById('display-total-kasir').innerText = "Rp " + total.toLocaleString();
+    calculateChange();
+}
 
-        const makanan = groupItems(order.items.filter(i => i.cat === 'makanan'));
-        const minuman = groupItems(order.items.filter(i => i.cat === 'minuman'));
+// 4. Kalkulator Kembalian
+function calculateChange() {
+    const total = Object.values(currentOrder).reduce((a, b) => a + (b.price * b.qty), 0);
+    const cash = document.getElementById('cash-input').value || 0;
+    const change = cash - total;
+    document.getElementById('display-change').innerText = "Rp " + (change < 0 ? 0 : change).toLocaleString();
+}
 
-        list.innerHTML += `
-            <div class="order-item status-${order.status}">
-                <div class="order-header">
-                    <span class="badge">${order.status === 'pending' ? 'Belum Diantar' : order.status}</span>
-                    <small>${order.time}</small>
-                </div>
-                
-                <div class="order-details">
-                    ${makanan.length ? `<p><strong>🍴 Makanan:</strong> ${makanan.join(", ")}</p>` : ''}
-                    ${minuman.length ? `<p><strong>🥤 Minuman:</strong> ${minuman.join(", ")}</p>` : ''}
-                </div>
-                <p class="order-total">Total: Rp ${order.total.toLocaleString()}</p>
-                
-                ${order.status === 'pending' ? `
-                    <div class="action-btns">
-                        <button class="btn-status btn-done" onclick="updateStatus(${order.id}, 'done')">Selesai</button>
-                        <button class="btn-status btn-cancel" onclick="updateStatus(${order.id}, 'canceled')">Batal</button>
-                    </div>` : ''}
-            </div>`;
+// 5. Simpan Transaksi & Detail Tanggal
+function finalizeTransaction() {
+    const total = Object.values(currentOrder).reduce((a, b) => a + (b.price * b.qty), 0);
+    if (total <= 0) return alert("Keranjang kosong!");
+
+    const record = {
+        waktu: new Date().toLocaleString('id-ID'),
+        timestamp: Date.now(),
+        detail: Object.keys(currentOrder).map(k => `${k} (x${currentOrder[k].qty})`).join(", "),
+        total: total
+    };
+
+    saleHistory.push(record);
+    localStorage.setItem('sobat_history', JSON.stringify(saleHistory));
+    
+    currentOrder = {}; // Reset order aktif
+    document.getElementById('cash-input').value = "";
+    alert("Transaksi Selesai!");
+    renderOrder();
+    renderHistory();
+    updateChart();
+}
+
+// 6. Ekspor ke Excel
+function exportToExcel() {
+    const ws = XLSX.utils.json_to_sheet(saleHistory);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Laporan Penjualan");
+    XLSX.writeFile(wb, `Laporan_SobatKamu_${new Date().toLocaleDateString()}.xlsx`);
+}
+
+// 7. Reset Data
+function resetHistory() {
+    if (confirm("Reset semua riwayat penjualan?")) {
+        saleHistory = [];
+        localStorage.removeItem('sobat_history');
+        location.reload();
+    }
+}
+
+// 8. Bagan Perbandingan (Hari Ini vs Kemarin)
+function updateChart() {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const now = new Date();
+    const todayStr = now.toLocaleDateString();
+    const yesterdayStr = new Date(now.setDate(now.getDate() - 1)).toLocaleDateString();
+
+    const todayVal = saleHistory.filter(h => h.waktu.includes(todayStr)).reduce((a, b) => a + b.total, 0);
+    const yesterdayVal = saleHistory.filter(h => h.waktu.includes(yesterdayStr)).reduce((a, b) => a + b.total, 0);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Kemarin', 'Hari Ini'],
+            datasets: [{
+                label: 'Penjualan (Rp)',
+                data: [yesterdayVal, todayVal],
+                backgroundColor: ['rgba(255, 255, 255, 0.3)', '#FFD700']
+            }]
+        },
+        options: { plugins: { legend: { labels: { color: 'white' } } } }
     });
-    incomeDisplay.innerText = "Rp " + totalIncome.toLocaleString();
 }
 
-function showTab(tab) {
-    document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(`${tab}-tab`).classList.add('active');
-    event.currentTarget.classList.add('active');
-    document.getElementById('checkout-bar').style.display = (tab === 'order') ? 'flex' : 'none';
+// Inisialisasi awal
+function renderHistory() {
+    const body = document.getElementById('history-body');
+    body.innerHTML = saleHistory.slice(-5).reverse().map(h => `
+        <tr><td>${h.waktu}</td><td>${h.detail}</td><td>Rp ${h.total.toLocaleString()}</td></tr>
+    `).join("");
 }
 
-renderMenu(); renderHistory();
+window.onload = () => { renderHistory(); updateChart(); };
