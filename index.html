@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Kasir PRO</title>
+    <title>Sobat Kasir PRO + Riwayat</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -35,19 +35,9 @@
                         <span class="price">Rp 10.000</span>
                         <button class="btn-add-yellow" onclick="addToOrder('Roti Bakar', 10000)">+</button>
                     </div>
-                    <div class="menu-card">
-                        <span class="name">Roti Pizza</span>
-                        <span class="price">Rp 20.000</span>
-                        <button class="btn-add-yellow" onclick="addToOrder('Roti Pizza', 20000)">+</button>
-                    </div>
-                    <div class="menu-card">
-                        <span class="name">Kentang Goreng</span>
-                        <span class="price">Rp 15.000</span>
-                        <button class="btn-add-yellow" onclick="addToOrder('Kentang Goreng', 15000)">+</button>
-                    </div>
                 </div>
             </div>
-
+            
             <div class="category-block">
                 <h2 class="cat-label">🥤 Minuman Blend</h2>
                 <div class="menu-grid">
@@ -55,11 +45,6 @@
                         <span class="name">Coklat Blend Milk</span>
                         <span class="price">Rp 12.000</span>
                         <button class="btn-add-yellow" onclick="addToOrder('Coklat Blend Milk', 12000)">+</button>
-                    </div>
-                    <div class="menu-card">
-                        <span class="name">Vanilla Blend</span>
-                        <span class="price">Rp 10.000</span>
-                        <button class="btn-add-yellow" onclick="addToOrder('Vanilla Blend', 10000)">+</button>
                     </div>
                 </div>
             </div>
@@ -89,19 +74,26 @@
         </aside>
     </div>
 
-    <section class="dashboard-area glass">
-        <div class="dash-header">
-            <h3>📊 Rekap Penjualan</h3>
-            <button class="btn-util" onclick="exportToExcel()">💾 Unduh Excel</button>
-        </div>
-        <div class="dash-grid">
-            <div class="chart-box"><canvas id="salesChart"></canvas></div>
-            <div class="table-box">
-                <table>
-                    <thead><tr><th>Jam</th><th>Total</th></tr></thead>
-                    <tbody id="history-body"></tbody>
-                </table>
+    <section class="history-section glass">
+        <div class="history-header">
+            <h3>📜 Riwayat Transaksi Hari Ini</h3>
+            <div class="history-btns">
+                <button class="btn-util" onclick="exportToExcel()">💾 Simpan Excel</button>
+                <button class="btn-util danger" onclick="clearHistory()">🗑️ Hapus Semua</button>
             </div>
+        </div>
+        <div class="history-table-wrapper">
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Item Pesanan</th>
+                        <th>Total Bayar</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body">
+                    </tbody>
+            </table>
         </div>
     </section>
 </div>
