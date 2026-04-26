@@ -3,101 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Kasir PRO - Multi Interface</title>
+    <title>Sobat Kasir - Liquid Glass</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="kasir-body">
 
-<nav class="bottom-nav">
-    <button onclick="showPage('home')" id="btn-home" class="nav-item active">🏠 Home (Kasir)</button>
-    <button onclick="showPage('history')" id="btn-history" class="nav-item">📊 Main Menu (Riwayat)</button>
-</nav>
-
-<div id="floating-kasir" class="floating-bar glass">
-    <div class="drag-handle">↔️ Tarik untuk Ubah Lebar</div>
-    <div class="bar-content">
-        <div class="bar-info">
-            <span class="label">Total:</span>
-            <span id="bar-total" class="yellow-text">Rp 0</span>
-        </div>
-        <div class="bar-input">
-            <input type="number" id="bar-cash" placeholder="Uang Tunai" oninput="syncBarCalc()">
-        </div>
-        <div class="bar-info">
-            <span class="label">Kembali:</span>
-            <span id="bar-change" class="yellow-text">Rp 0</span>
-        </div>
-        <button class="btn-pay" onclick="processTransaction()">Selesaikan</button>
-        <button class="btn-clear" onclick="resetCart()">Reset</button>
-    </div>
-</div>
-
 <div class="app-container">
-    <section id="page-home" class="page active">
-        <header class="header-minimal">
-            <h1>Sobat <span>Kasir</span></h1>
-            <p id="live-clock">00:00:00</p>
-        </header>
+    <header class="header-liquid glass">
+        <h1>Sobat <span>Kasir</span></h1>
+        <div id="live-clock">00:00:00</div>
+    </header>
 
-        <div class="menu-sections">
-            <div class="cat-wrapper">
-                <h2 class="cat-title">🍴 Makanan & Snack</h2>
-                <div class="menu-grid" id="grid-makanan">
-                    </div>
+    <div class="main-layout">
+        <section class="menu-section">
+            <h2 class="label">🍴 Menu Utama</h2>
+            <div class="menu-grid">
+                <div class="card-glass" onclick="addToOrder('Nasi BaBol', 18000)">
+                    <span class="name">Nasi BaBol</span>
+                    <span class="price">Rp 18.000</span>
+                    <button class="btn-plus">+</button>
+                </div>
+                <div class="card-glass" onclick="addToOrder('Roti Bakar', 10000)">
+                    <span class="name">Roti Bakar</span>
+                    <span class="price">Rp 10.000</span>
+                    <button class="btn-plus">+</button>
+                </div>
+                <div class="card-glass" onclick="addToOrder('Coklat Blend', 12000)">
+                    <span class="name">Coklat Blend</span>
+                    <span class="price">Rp 12.000</span>
+                    <button class="btn-plus">+</button>
+                </div>
             </div>
-            <div class="cat-wrapper">
-                <h2 class="cat-title">🥤 Minuman Blend</h2>
-                <div class="menu-grid" id="grid-minuman">
-                    </div>
+        </section>
+
+        <aside class="billing-section glass">
+            <h3>🛒 Pesanan Aktif</h3>
+            <div id="cart-list" class="cart-items">
+                <p class="empty">Belum ada item</p>
             </div>
+
+            <div class="calc-area">
+                <div class="row"><span>Total</span><span id="total-val">Rp 0</span></div>
+                <div class="row"><span>Tunai</span><input type="number" id="cash-in" oninput="calc()"></div>
+                <div class="row yellow-text"><span>Kembali</span><span id="change-val">Rp 0</span></div>
+                <button class="btn-pay" onclick="checkout()">Selesaikan</button>
+            </div>
+        </aside>
+    </div>
+
+    <section class="history-section glass">
+        <div class="hist-header">
+            <h3>📜 Riwayat Terakhir</h3>
+            <button onclick="exportExcel()" class="btn-small">Unduh Excel</button>
         </div>
-    </section>
-
-    <section id="page-history" class="page">
-        <header class="header-minimal">
-            <h1>Laporan <span>Penjualan</span></h1>
-        </header>
-
-        <div class="stats-grid">
-            <div class="stat-card glass">
-                <p>Penghasilan Hari Ini</p>
-                <h2 id="stat-today" class="yellow-text">Rp 0</h2>
-            </div>
-            <div class="stat-card glass">
-                <p>Total Terjual</p>
-                <h2 id="stat-count">0 Transaksi</h2>
-            </div>
-        </div>
-
-        <div class="chart-section glass">
-            <h3>📈 Perbandingan Jualan (Kemarin vs Hari Ini)</h3>
-            <div class="chart-container">
-                <canvas id="comparisonChart"></canvas>
-            </div>
-        </div>
-
-        <div class="table-section glass">
-            <h3>📜 Seluruh Riwayat Transaksi</h3>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr><th>Waktu</th><th>Item</th><th>Total</th></tr>
-                    </thead>
-                    <tbody id="history-rows"></tbody>
-                </table>
-            </div>
-            <div class="report-actions">
-                <button class="btn-util" onclick="exportToExcel()">💾 Excel</button>
-                <button class="btn-util danger" onclick="clearData()">🗑️ Reset</button>
-            </div>
+        <div class="table-wrap">
+            <table>
+                <tbody id="hist-body"></tbody>
+            </table>
         </div>
     </section>
 </div>
 
-<audio id="bgMusic" loop src="Musik.mp3"></audio>
 <script src="script.js"></script>
 </body>
 </html>
