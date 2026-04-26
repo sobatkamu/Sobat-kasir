@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Kasir - Modern POS</title>
+    <title>Sobat Kasir PRO - Multi Interface</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,81 +11,93 @@
 </head>
 <body class="kasir-body">
 
-    <div id="floating-cashier" class="floating-bar glass">
-        <div class="drag-handle">⠿ Total Pesanan (Geser Pinggir Untuk Ubah Lebar)</div>
-        <div class="floating-content">
-            <div class="total-main">
-                <span id="display-total">Rp 0</span>
+<nav class="bottom-nav">
+    <button onclick="showPage('home')" id="btn-home" class="nav-item active">🏠 Home (Kasir)</button>
+    <button onclick="showPage('history')" id="btn-history" class="nav-item">📊 Main Menu (Riwayat)</button>
+</nav>
+
+<div id="floating-kasir" class="floating-bar glass">
+    <div class="drag-handle">↔️ Tarik untuk Ubah Lebar</div>
+    <div class="bar-content">
+        <div class="bar-info">
+            <span class="label">Total:</span>
+            <span id="bar-total" class="yellow-text">Rp 0</span>
+        </div>
+        <div class="bar-input">
+            <input type="number" id="bar-cash" placeholder="Uang Tunai" oninput="syncBarCalc()">
+        </div>
+        <div class="bar-info">
+            <span class="label">Kembali:</span>
+            <span id="bar-change" class="yellow-text">Rp 0</span>
+        </div>
+        <button class="btn-pay" onclick="processTransaction()">Selesaikan</button>
+        <button class="btn-clear" onclick="resetCart()">Reset</button>
+    </div>
+</div>
+
+<div class="app-container">
+    <section id="page-home" class="page active">
+        <header class="header-minimal">
+            <h1>Sobat <span>Kasir</span></h1>
+            <p id="live-clock">00:00:00</p>
+        </header>
+
+        <div class="menu-sections">
+            <div class="cat-wrapper">
+                <h2 class="cat-title">🍴 Makanan & Snack</h2>
+                <div class="menu-grid" id="grid-makanan">
+                    </div>
             </div>
-            <div class="action-inputs">
-                <input type="number" id="cash-input" placeholder="Tunai..." oninput="runCalculator()">
-                <div class="change-box">Kembali: <span id="display-change">Rp 0</span></div>
-                <button class="btn-pay" onclick="processTransaction()">Selesaikan</button>
+            <div class="cat-wrapper">
+                <h2 class="cat-title">🥤 Minuman Blend</h2>
+                <div class="menu-grid" id="grid-minuman">
+                    </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="app-container">
-        <section id="cashier-section" class="active-section">
-            <header class="section-header">
-                <h2>🍴 Menu Utama</h2>
-                <button class="nav-btn" onclick="switchTab('dashboard')">Lihat Riwayat & Grafik ⮕</button>
-            </header>
+    <section id="page-history" class="page">
+        <header class="header-minimal">
+            <h1>Laporan <span>Penjualan</span></h1>
+        </header>
 
-            <div class="menu-grid">
-                <div class="category-title">Makanan & Snack</div>
-                <div class="menu-card">
-                    <span class="name">Nasi Chiken BaBol</span>
-                    <span class="price">Rp 18.000</span>
-                    <button class="btn-yellow" onclick="addToOrder('Nasi BaBol', 18000)">+</button>
-                </div>
-                <div class="menu-card">
-                    <span class="name">Roti Bakar</span>
-                    <span class="price">Rp 10.000</span>
-                    <button class="btn-yellow" onclick="addToOrder('Roti Bakar', 10000)">+</button>
-                </div>
-                
-                <div class="category-title">Minuman Blend</div>
-                <div class="menu-card">
-                    <span class="name">Coklat Blend Milk</span>
-                    <span class="price">Rp 12.000</span>
-                    <button class="btn-yellow" onclick="addToOrder('Coklat Blend Milk', 12000)">+</button>
-                </div>
+        <div class="stats-grid">
+            <div class="stat-card glass">
+                <p>Penghasilan Hari Ini</p>
+                <h2 id="stat-today" class="yellow-text">Rp 0</h2>
             </div>
-
-            <div class="mini-order-list glass">
-                <h4>Item Dipilih:</h4>
-                <div id="order-items"></div>
+            <div class="stat-card glass">
+                <p>Total Terjual</p>
+                <h2 id="stat-count">0 Transaksi</h2>
             </div>
-        </section>
+        </div>
 
-        <section id="dashboard-section" class="hidden-section">
-            <header class="section-header">
-                <button class="nav-btn" onclick="switchTab('cashier')">⬅ Kembali ke Kasir</button>
-                <h2>📊 Laporan Penjualan</h2>
-            </header>
-
-            <div class="dashboard-grid">
-                <div class="chart-container glass">
-                    <canvas id="salesChart"></canvas>
-                </div>
-                <div class="history-container glass">
-                    <div class="h-head">
-                        <h3>Riwayat Transaksi</h3>
-                        <button onclick="exportToExcel()" class="btn-util">Excel</button>
-                    </div>
-                    <table id="history-table">
-                        <thead>
-                            <tr><th>Jam</th><th>Total</th></tr>
-                        </thead>
-                        <tbody id="history-body"></tbody>
-                    </table>
-                </div>
+        <div class="chart-section glass">
+            <h3>📈 Perbandingan Jualan (Kemarin vs Hari Ini)</h3>
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
             </div>
-        </section>
-    </div>
+        </div>
 
-    <audio id="bgMusic" loop src="Musik.mp3"></audio>
-    <script src="script.js"></script>
+        <div class="table-section glass">
+            <h3>📜 Seluruh Riwayat Transaksi</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Waktu</th><th>Item</th><th>Total</th></tr>
+                    </thead>
+                    <tbody id="history-rows"></tbody>
+                </table>
+            </div>
+            <div class="report-actions">
+                <button class="btn-util" onclick="exportToExcel()">💾 Excel</button>
+                <button class="btn-util danger" onclick="clearData()">🗑️ Reset</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<audio id="bgMusic" loop src="Musik.mp3"></audio>
+<script src="script.js"></script>
 </body>
 </html>
