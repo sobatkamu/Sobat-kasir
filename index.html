@@ -3,39 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Kamu POS</title>
+    <title>Sobat Kasir</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Lexend&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body>
-    <header>
-        <h2>Sobat Kamu - Kasir</h2>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('order')">Order</button>
-            <button class="tab-btn" onclick="showTab('history')">Riwayat</button>
+<body class="kasir-body">
+
+<div class="dashboard-container">
+    <div class="pos-input-section glass">
+        <h2>🛒 Sobat Kasir</h2>
+        <div class="menu-grid-kasir">
+            <button class="menu-item-btn" onclick="addToOrder('Nasi Chiken BaBol', 18000)">Nasi BaBol</button>
+            <button class="menu-item-btn" onclick="addToOrder('Roti Bakar', 10000)">Roti Bakar</button>
+            <button class="menu-item-btn" onclick="addToOrder('Burger Sobat Komplit', 35000)">Burger Komplit</button>
+            <button class="menu-item-btn" onclick="addToOrder('Coklat Blend Milk', 12000)">Coklat Milk</button>
         </div>
-    </header>
-
-    <div id="order-tab" class="tab-content active">
-        <h3>🍴 Makanan</h3>
-        <div class="menu-grid" id="food-menu"></div>
-        <h3 style="margin-top:20px">🥤 Minuman</h3>
-        <div class="menu-grid" id="drink-menu"></div>
     </div>
 
-    <div id="history-tab" class="tab-content">
-        <div style="background:var(--royal-blue); color:white; padding:15px; border-radius:10px; text-align:center">
-            <p>Total Pemasukan (Selesai)</p>
-            <h2 id="total-income">Rp 0</h2>
+    <div class="billing-section glass">
+        <h3>Pesanan Aktif</h3>
+        <div id="active-list" class="active-list"></div>
+        
+        <div class="payment-box">
+            <div class="calc-row"><span>Total:</span> <span id="display-total-kasir">Rp 0</span></div>
+            <div class="calc-row">
+                <span>Bayar:</span>
+                <input type="number" id="cash-input" placeholder="0" oninput="calculateChange()">
+            </div>
+            <div class="calc-row highlight"><span>Kembalian:</span> <span id="display-change">Rp 0</span></div>
+            <button class="btn-finalize" onclick="finalizeTransaction()">Selesaikan Transaksi</button>
         </div>
-        <div id="history-list" style="margin-top:20px"></div>
+    </div>
+</div>
+
+<div class="report-container glass">
+    <div class="report-header">
+        <h3>📊 Laporan & Analisis</h3>
+        <div class="report-btns">
+            <button class="btn-excel" onclick="exportToExcel()">Ekspor ke Excel</button>
+            <button class="btn-reset" onclick="resetHistory()">Reset Riwayat</button>
+        </div>
     </div>
 
-    <div class="checkout-bar" id="checkout-bar">
-        <div>Total: <strong id="current-total">Rp 0</strong> (<span id="cart-count">0</span> item)</div>
-        <button class="btn-checkout" onclick="processOrder()">Simpan</button>
+    <div class="analytics-grid">
+        <div class="chart-box"><canvas id="salesChart"></canvas></div>
+        <div class="table-box">
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Item</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+            </table>
+        </div>
     </div>
+</div>
 
-    <script src="script.js"></script>
+<script src="script-kasir.js"></script>
 </body>
 </html>
