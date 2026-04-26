@@ -1,126 +1,101 @@
-let cartData = {};
-let posLogs = JSON.parse(localStorage.getItem('sobat_pos_data')) || [];
+let cart = {};
+let logs = JSON.parse(localStorage.getItem('sobat_pos_history')) || [];
 
-// 1. Tambah/Update Pesanan
-function updateCart(name, price) {
-    if (cartData[name]) {
-        cartData[name].qty += 1;
-        cartData[name].status = 'active';
+function addToOrder(name, price) {
+    if (cart[name]) {
+        cart[name].qty += 1;
     } else {
-        cartData[name] = { price, qty: 1, status: 'active' };
+        cart[name] = { price, qty: 1 };
     }
-    refreshUI();
+    renderUI();
 }
 
-// 2. Kurangi & Timer Batal 10 Detik
-function removeQty(name) {
-    if (cartData[name]) {
-        cartData[name].qty -= 1;
-        if (cartData[name].qty <= 0) {
-            cartData[name].status = 'pending_cancel';
-            setTimeout(() => {
-                if (cartData[name] && cartData[name].status === 'pending_cancel') {
-                    delete cartData[name];
-                    refreshUI();
-                }
-            }, 10000);
-        }
-    }
-    refreshUI();
-}
-
-// 3. Sinkronisasi Antarmuka
-function refreshUI() {
-    const list = document.getElementById('order-list');
+function renderUI() {
+    const list = document.getElementById('order-items');
     list.innerHTML = '';
     let total = 0;
 
-    for (let key in cartData) {
-        const item = cartData[key];
-        const isPending = item.status === 'pending_cancel';
-        if (!isPending) total += item.price * item.qty;
+    for (let key in cart) {
+        const item = cart[key];
+        total += item.price * item.qty;
 
         list.innerHTML += `
-            <div class="pay-row" style="opacity: ${isPending ? '0.4' : '1'}">
-                <span>${key} ${isPending ? '(Batal...)' : '(x' + item.qty + ')'}</span>
-                <button onclick="removeQty('${key}')" style="background:red; border:none; color:white; border-radius:5px; padding:2px 8px; cursor:pointer">-</button>
+            <div class="bill-row">
+                <span>${key} (x${item.qty})</span>
+                <span class="yellow-text">Rp ${(item.price * item.qty).toLocaleString()}</span>
             </div>
         `;
     }
-    document.getElementById('grand-total').innerText = "Rp " + total.toLocaleString();
-    syncCalc();
+    document.getElementById('display-total').innerText = "Rp " + total.toLocaleString();
+    runCalculator();
 }
 
-// 4. Kalkulator Otomatis
-function syncCalc() {
-    const total = parseInt(document.getElementById('grand-total').innerText.replace(/\D/g,''));
-    const cash = parseInt(document.getElementById('cash-in').value) || 0;
+function runCalculator() {
+    const total = parseInt(document.getElementById('display-total').innerText.replace(/\D/g,'')) || 0;
+    const cash = parseInt(document.getElementById('cash-input').value) || 0;
     const change = cash - total;
-    document.getElementById('change-out').innerText = "Rp " + (change < 0 ? 0 : change.toLocaleString());
+    document.getElementById('display-change').innerText = "Rp " + (change < 0 ? 0 : change.toLocaleString());
 }
 
-// 5. Simpan Transaksi
-function finishOrder() {
-    const total = parseInt(document.getElementById('grand-total').innerText.replace(/\D/g,''));
-    if (total <= 0) return alert("Pilih menu dulu!");
+function processTransaction() {
+    const total = parseInt(document.getElementById('display-total').innerText.replace(/\D/g,'')) || 0;
+    if (total <= 0) return alert("Pilih menu dahulu!");
 
-    const record = {
+    const log = {
         jam: new Date().toLocaleTimeString('id-ID'),
-        tgl: new Date().toLocaleDateString('id-ID'),
+        tanggal: new Date().toLocaleDateString('id-ID'),
         total: total
     };
 
-    posLogs.push(record);
-    localStorage.setItem('sobat_pos_data', JSON.stringify(posLogs));
+    logs.push(log);
+    localStorage.setItem('sobat_pos_history', JSON.stringify(logs));
     
-    cartData = {};
-    document.getElementById('cash-in').value = '';
+    cart = {};
+    document.getElementById('cash-input').value = '';
     alert("Transaksi Selesai!");
-    refreshUI();
-    loadHistory();
-    drawChart();
+    renderUI();
+    renderHistory();
+    updateChart();
 }
 
-// 6. Grafik & Laporan
-function loadHistory() {
-    const body = document.getElementById('history-rows');
-    body.innerHTML = posLogs.slice(-5).reverse().map(l => `
+function exportToExcel() {
+    const ws = XLSX.utils.json_to_sheet(logs);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Rekap");
+    XLSX.writeFile(wb, "SobatKasir_Report.xlsx");
+}
+
+function renderHistory() {
+    const body = document.getElementById('history-body');
+    body.innerHTML = logs.slice(-5).reverse().map(l => `
         <tr><td>${l.jam}</td><td>Rp ${l.total.toLocaleString()}</td></tr>
     `).join('');
 }
 
-let chartRef;
-function drawChart() {
+let chart;
+function updateChart() {
     const ctx = document.getElementById('salesChart').getContext('2d');
     const today = new Date().toLocaleDateString('id-ID');
-    const todayTotal = posLogs.filter(l => l.tgl === today).reduce((a, b) => a + b.total, 0);
+    const income = logs.filter(l => l.tanggal === today).reduce((a, b) => a + b.total, 0);
 
-    if (chartRef) chartRef.destroy();
-    chartRef = new Chart(ctx, {
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Omset Hari Ini'],
-            datasets: [{ label: 'Rupiah', data: [todayTotal], backgroundColor: '#0061f2' }]
-        }
+            labels: ['Hari Ini'],
+            datasets: [{ label: 'Omset Rp', data: [income], backgroundColor: '#0066ff' }]
+        },
+        options: { maintainAspectRatio: false }
     });
 }
 
-function exportData() {
-    const ws = XLSX.utils.json_to_sheet(posLogs);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Laporan");
-    XLSX.writeFile(wb, "Rekap_SobatKasir.xlsx");
-}
-
-function clearData() { if(confirm("Hapus riwayat?")) { localStorage.clear(); location.reload(); } }
-
-// Loop Utama
 setInterval(() => {
     document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID');
-    document.getElementById('display-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
+    document.getElementById('live-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
 }, 1000);
 
 window.onload = () => {
-    loadHistory(); drawChart();
+    renderHistory();
+    updateChart();
     document.addEventListener('click', () => document.getElementById('bgMusic').play(), {once: true});
 };
