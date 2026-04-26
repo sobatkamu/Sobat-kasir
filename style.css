@@ -1,36 +1,163 @@
 :root {
-    --royal-blue: #0047AB; --vibrant-yellow: #FFD700;
-    --done-bg: #d4edda; --done-text: #155724;
-    --cancel-bg: #f8d7da; --cancel-text: #721c24;
+    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --royal-blue: #0047AB;
+    --vibrant-yellow: #FFD700;
+    --accent-green: #25D366;
+    --error-red: #ff4d4d;
 }
 
-body { font-family: 'Lexend', sans-serif; background: #f4f7f9; padding-bottom: 100px; margin: 0; }
-header { background: var(--royal-blue); color: white; padding: 15px; text-align: center; }
-.tabs { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-.tab-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; }
-.tab-btn.active { background: var(--vibrant-yellow); color: #333; font-weight: bold; }
+body.kasir-body {
+    background: linear-gradient(135deg, #001f3f 0%, #0047AB 50%, #0074D9 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    font-family: 'Lexend', sans-serif;
+    color: white;
+}
 
-.tab-content { display: none; padding: 15px; }
-.tab-content.active { display: block; }
+/* Efek Glassmorphism Utama */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    padding: 20px;
+}
 
-.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.menu-card { background: white; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.btn-add { background: var(--vibrant-yellow); border: none; width: 100%; padding: 8px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+/* Layout Grid Dashboard */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 20px;
+    margin-bottom: 20px;
+}
 
-/* Styling Riwayat Berwarna */
-.order-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 6px solid #ccc; box-shadow: 0 3px 6px rgba(0,0,0,0.08); }
-.order-item.status-done { background-color: var(--done-bg); color: var(--done-text); border-left-color: #28a745; }
-.order-item.status-canceled { background-color: var(--cancel-bg); color: var(--cancel-text); border-left-color: #dc3545; }
-.order-item.status-pending { border-left-color: var(--vibrant-yellow); }
+/* Tombol Menu POS */
+.menu-grid-kasir {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
 
-.badge { font-size: 0.7rem; text-transform: uppercase; font-weight: bold; }
-.order-details p { margin: 5px 0; font-size: 0.9rem; }
-.order-total { font-weight: bold; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 5px; margin-top: 10px; }
+.menu-item-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    padding: 20px 10px;
+    border-radius: 15px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
 
-.action-btns { display: flex; gap: 10px; margin-top: 10px; }
-.btn-status { flex: 1; padding: 8px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; }
-.btn-done { background: #28a745; }
-.btn-cancel { background: #dc3545; }
+.menu-item-btn:hover {
+    background: var(--vibrant-yellow);
+    color: var(--royal-blue);
+    transform: translateY(-5px) scale(1.05);
+}
 
-.checkout-bar { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -3px 10px rgba(0,0,0,0.1); }
-.btn-checkout { background: var(--royal-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+/* Billing & Pembayaran */
+.active-list {
+    min-height: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.order-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+}
+
+.order-row.cancel {
+    background: rgba(255, 77, 77, 0.2);
+    color: var(--error-red);
+    font-style: italic;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.payment-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.calc-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.calc-row input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--vibrant-yellow);
+    color: var(--vibrant-yellow);
+    text-align: right;
+    font-size: 1.2rem;
+    width: 150px;
+    outline: none;
+}
+
+.highlight {
+    font-weight: bold;
+    color: var(--vibrant-yellow);
+    font-size: 1.4rem;
+}
+
+/* Tombol Aksi */
+.btn-finalize {
+    width: 100%;
+    padding: 15px;
+    border-radius: 15px;
+    border: none;
+    background: var(--accent-green);
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+}
+
+/* Laporan & Tabel */
+.report-container { margin-top: 20px; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th {
+    text-align: left;
+    border-bottom: 2px solid var(--glass-border);
+    padding: 15px;
+}
+
+td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+/* Tombol Khusus Laporan */
+.btn-excel { background: #1D6F42; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; margin-right: 10px;}
+.btn-reset { background: var(--error-red); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
