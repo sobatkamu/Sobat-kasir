@@ -1,69 +1,165 @@
 :root {
-    --primary-blue: #007bff;
-    --dark-blue: #0056b3;
-    --yellow: #ffdf00;
-    --liquid: rgba(255, 255, 255, 0.15);
+    --royal-blue: #0047AB; 
+    --vibrant-yellow: #FFD700;
+    --liquid-white: rgba(255, 255, 255, 0.15); /* Efek Kaca Cair */
+    --liquid-border: rgba(255, 255, 255, 0.25);
+    --done-bg: rgba(40, 167, 69, 0.2);
+    --cancel-bg: rgba(220, 53, 69, 0.2);
 }
 
-body {
-    background: linear-gradient(180deg, var(--primary-blue), var(--dark-blue));
-    font-family: 'Lexend', sans-serif;
+body { 
+    font-family: 'Lexend', sans-serif; 
+    /* Background gradien agar efek glass terlihat menyala */
+    background: linear-gradient(135deg, #003380 0%, #001a4d 100%);
+    background-attachment: fixed;
     color: white;
-    margin: 0; padding: 20px;
-    min-height: 100vh;
+    padding-bottom: 110px; 
+    margin: 0; 
 }
 
-.liquid-glass {
-    background: var(--liquid);
-    backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 30px;
-    padding: 20px;
+header { 
+    background: rgba(0, 71, 171, 0.4);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--liquid-border);
+    color: white; 
+    padding: 20px; 
+    text-align: center; 
 }
 
-.main-header { text-align: center; margin-bottom: 30px; }
-.main-header h1 span { color: var(--yellow); }
+header h1 span { color: var(--vibrant-yellow); }
 
-.pos-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
+.tabs { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
 
-/* Menu Cards (Mirroring Sobat Delivery) */
-.menu-wrapper { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 25px; }
-.menu-card {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 25px;
-    padding: 20px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.tab-btn { 
+    background: var(--liquid-white);
+    border: 1px solid var(--liquid-border);
+    color: white; 
+    padding: 10px 20px; 
+    border-radius: 25px; 
+    cursor: pointer; 
+    backdrop-filter: blur(5px);
+    transition: 0.3s;
 }
-.menu-card .name { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
-.menu-card .price { display: block; color: var(--yellow); font-weight: bold; margin-bottom: 10px; }
 
-.btn-yellow {
-    background: var(--yellow);
-    border: none;
-    border-radius: 50%;
-    width: 35px; height: 35px;
-    font-size: 1.5rem; font-weight: bold;
-    color: var(--dark-blue);
+.tab-btn.active { 
+    background: var(--vibrant-yellow); 
+    color: #003380; 
+    font-weight: bold; 
+    border-color: var(--vibrant-yellow);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+
+.menu-card { 
+    background: var(--liquid-white);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--liquid-border);
+    padding: 20px 15px; 
+    border-radius: 25px; 
+    text-align: center; 
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+.menu-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.menu-card .price { color: var(--vibrant-yellow); font-weight: bold; display: block; margin: 8px 0; }
+
+.btn-add { 
+    background: var(--vibrant-yellow); 
+    border: none; 
+    width: 40px; height: 40px; 
+    border-radius: 50%; 
+    font-size: 1.5rem;
+    font-weight: bold; 
+    color: #003380;
     cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* Sidebar & Qty Control */
-.billing-area { height: 500px; display: flex; flex-direction: column; }
-.scroll-area { flex-grow: 1; overflow-y: auto; margin: 15px 0; }
+/* Riwayat Pembelian - Liquid Style */
+.order-item { 
+    background: var(--liquid-white); 
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--liquid-border);
+    padding: 18px; 
+    border-radius: 25px; 
+    margin-bottom: 15px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
 
-.cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.qty-btn { background: var(--yellow); border: none; padding: 2px 8px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+.order-item.status-done { 
+    background: var(--done-bg); 
+    border-color: rgba(40, 167, 69, 0.4); 
+}
 
-.calc-panel { background: rgba(0,0,0,0.2); border-radius: 20px; padding: 15px; }
-.bill-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }
-.bill-row.yellow { color: var(--yellow); font-size: 1.3rem; }
-input { width: 100px; background: none; border: 1px solid var(--yellow); color: var(--yellow); text-align: right; border-radius: 5px; }
+.order-item.status-canceled { 
+    background: var(--cancel-bg); 
+    border-color: rgba(220, 53, 69, 0.4); 
+}
 
-.btn-finish { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+.order-item.status-pending { 
+    border-left: 4px solid var(--vibrant-yellow); 
+}
 
-/* History Area */
-.history-area { margin-top: 30px; }
-.table-container { max-height: 200px; overflow-y: auto; margin-top: 10px; }
-table { width: 100%; font-size: 0.85rem; }
-td { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.badge { 
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    font-size: 0.7rem; 
+    margin-bottom: 10px;
+}
+
+.order-total { 
+    font-weight: bold; 
+    color: var(--vibrant-yellow);
+    border-top: 1px solid rgba(255,255,255,0.1); 
+    padding-top: 10px; 
+    margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+/* Tombol Aksi */
+.action-btns { display: flex; gap: 10px; margin-top: 15px; }
+.btn-status { 
+    flex: 1; padding: 12px; border: none; border-radius: 15px; 
+    color: white; font-weight: bold; cursor: pointer; 
+    transition: 0.2s;
+}
+.btn-done { background: #28a745; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); }
+.btn-cancel { background: #dc3545; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); }
+
+/* Checkout Bar - Liquid Glass */
+.checkout-bar { 
+    position: fixed; 
+    bottom: 15px; 
+    left: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--liquid-border);
+    padding: 15px 25px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-radius: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+}
+
+.btn-checkout { 
+    background: var(--vibrant-yellow); 
+    color: #003380; 
+    border: none; 
+    padding: 12px 25px; 
+    border-radius: 18px; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
