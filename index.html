@@ -3,113 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Kasir PRO</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>Sobat Kasir - Admin POS</title>
+    <link rel="stylesheet" href="style-kasir.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="pos-body">
+<body class="kasir-body">
 
-<div class="app-container">
-    <header class="main-header glass">
-        <div class="logo-area">
-            <h1>Sobat <span>Kasir</span></h1>
-            <p id="date-display"></p>
-        </div>
-        <div class="header-status">
-            <span id="live-clock">00:00:00</span>
-        </div>
-    </header>
+<div class="app-wrapper">
+    <section class="menu-panel glass">
+        <header class="panel-header">
+            <h1>Sobat Kasir</h1>
+            <p>Pilih menu pesanan pembeli</p>
+        </header>
 
-    <main class="pos-grid">
-        <section class="menu-section glass">
-            <div class="section-header">
-                <h3>🍴 Menu Favorit</h3>
-            </div>
-            <div class="category-tabs">
-                <button class="tab-btn active">Semua</button>
-                <button class="tab-btn">Makanan</button>
-                <button class="tab-btn">Minuman</button>
-            </div>
-            <div class="menu-items" id="pos-menu">
-                <button class="card-item" onclick="addToOrder('Nasi BaBol', 18000)">
+        <div class="category-section">
+            <h2 class="category-title">🍴 Makanan</h2>
+            <div class="menu-grid-kasir">
+                <button class="menu-btn" onclick="addToOrder('Nasi BaBol', 18000)">
                     <span class="name">Nasi BaBol</span>
-                    <span class="price">18k</span>
+                    <span class="price">18.000</span>
                 </button>
-                <button class="card-item" onclick="addToOrder('Roti Bakar', 10000)">
+                <button class="menu-btn" onclick="addToOrder('Roti Bakar', 10000)">
                     <span class="name">Roti Bakar</span>
-                    <span class="price">10k</span>
+                    <span class="price">10.000</span>
                 </button>
-                <button class="card-item" onclick="addToOrder('Burger Komplit', 35000)">
+                <button class="menu-btn" onclick="addToOrder('Burger Komplit', 35000)">
                     <span class="name">Burger Komplit</span>
-                    <span class="price">35k</span>
+                    <span class="price">35.000</span>
                 </button>
-                <button class="card-item drink" onclick="addToOrder('Coklat Milk', 12000)">
+            </div>
+
+            <h2 class="category-title">🥤 Minuman</h2>
+            <div class="menu-grid-kasir">
+                <button class="menu-btn drink" onclick="addToOrder('Coklat Milk', 12000)">
                     <span class="name">Coklat Milk</span>
-                    <span class="price">12k</span>
+                    <span class="price">12.000</span>
                 </button>
-                <button class="card-item drink" onclick="addToOrder('Vanilla Blend', 10000)">
+                <button class="menu-btn drink" onclick="addToOrder('Vanilla Blend', 10000)">
                     <span class="name">Vanilla Blend</span>
-                    <span class="price">10k</span>
+                    <span class="price">10.000</span>
                 </button>
             </div>
-        </section>
-
-        <section class="checkout-section glass">
-            <h3>🧾 Pesanan Aktif</h3>
-            <div class="order-container" id="order-list">
-                <p class="empty-msg">Belum ada pesanan</p>
-            </div>
-
-            <div class="calculation-area">
-                <div class="calc-line total">
-                    <span>Total Keseluruhan</span>
-                    <span id="grand-total">Rp 0</span>
-                </div>
-                <div class="calc-line payment">
-                    <span>Tunai (Bayar)</span>
-                    <input type="number" id="cash-input" placeholder="Masukkan nominal..." oninput="updateChange()">
-                </div>
-                <div class="calc-line change">
-                    <span>Kembalian</span>
-                    <span id="change-display">Rp 0</span>
-                </div>
-                <button class="btn-primary" onclick="finalizeOrder()">Selesaikan Transaksi</button>
-            </div>
-        </section>
-    </main>
-
-    <footer class="report-section glass">
-        <div class="report-header">
-            <h3>📊 Analistik Penjualan</h3>
-            <div class="action-group">
-                <button class="btn-sec" onclick="exportToExcel()">Excel</button>
-                <button class="btn-danger" onclick="resetData()">Reset</button>
-            </div>
         </div>
-        <div class="report-grid">
-            <div class="chart-container">
-                <canvas id="salesChart"></canvas>
-            </div>
-            <div class="table-container">
-                <table id="history-table">
-                    <thead>
-                        <tr>
-                            <th>Jam</th>
-                            <th>Item</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-body"></tbody>
-                </table>
-            </div>
+    </section>
+
+    <aside class="billing-panel glass">
+        <h3>Ringkasan Pembayaran</h3>
+        <div id="order-list" class="order-list">
+            <p class="empty-text">Belum ada pesanan.</p>
         </div>
-    </footer>
+
+        <div class="payment-card">
+            <div class="calc-row">
+                <span>Total</span>
+                <span id="grand-total">Rp 0</span>
+            </div>
+            <div class="calc-row">
+                <span>Bayar</span>
+                <input type="number" id="cash-input" placeholder="0" oninput="calculateChange()">
+            </div>
+            <div class="calc-row highlight">
+                <span>Kembali</span>
+                <span id="change-display">Rp 0</span>
+            </div>
+            <button class="btn-finalize" onclick="finalizeTransaction()">Selesaikan Transaksi</button>
+        </div>
+    </aside>
 </div>
 
-<audio id="bgMusic" loop src="Musik.mp3"></audio>
-
-<script src="script.js"></script>
+<script src="script-kasir.js"></script>
 </body>
 </html>
