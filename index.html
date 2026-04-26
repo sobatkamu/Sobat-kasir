@@ -3,39 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Kamu POS</title>
+    <title>Sobat Kasir - Sky Liquid</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Lexend&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h2>Sobat <Span>Kasir</Span></h2>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('order')">Order</button>
-            <button class="tab-btn" onclick="showTab('history')">Riwayat</button>
+
+<header class="header-glass">
+    <h1>Sobat <span>Kasir</span></h1>
+    <div id="clock">00:00:00</div>
+</header>
+
+<div class="container">
+    <section class="pending-section glass">
+        <h2 class="label">⏳ Pesanan Belum Selesai / Belum Diantar</h2>
+        <div id="pending-orders" class="pending-grid">
+            <p class="empty-text">Tidak ada antrean pesanan.</p>
         </div>
-    </header>
+    </section>
 
-    <div id="order-tab" class="tab-content active">
-        <h3>🍴 Makanan</h3>
-        <div class="menu-grid" id="food-menu"></div>
-        <h3 style="margin-top:20px">🥤 Minuman</h3>
-        <div class="menu-grid" id="drink-menu"></div>
-    </div>
-
-    <div id="history-tab" class="tab-content">
-        <div style="background:var(--royal-blue); color:white; padding:15px; border-radius:10px; text-align:center">
-            <p>Total Pemasukan (Selesai)</p>
-            <h2 id="total-income">Rp 0</h2>
+    <section class="menu-section">
+        <h2 class="label">🍴 Daftar Menu</h2>
+        <div class="menu-grid">
+            <div class="menu-card glass">
+                <span class="name">Nasi Chiken BaBol</span>
+                <span class="price">Rp 18.000</span>
+                <button class="btn-add" onclick="createPending('Nasi BaBol', 18000)">+</button>
+            </div>
+            <div class="menu-card glass">
+                <span class="name">Roti Bakar</span>
+                <span class="price">Rp 10.000</span>
+                <button class="btn-add" onclick="createPending('Roti Bakar', 10000)">+</button>
+            </div>
+            <div class="menu-card glass">
+                <span class="name">Roti Pizza</span>
+                <span class="price">Rp 20.000</span>
+                <button class="btn-add" onclick="createPending('Roti Pizza', 20000)">+</button>
+            </div>
+            <div class="menu-card glass">
+                <span class="name">Kentang Goreng</span>
+                <span class="price">Rp 15.000</span>
+                <button class="btn-add" onclick="createPending('Kentang Goreng', 15000)">+</button>
+            </div>
+            <div class="menu-card glass">
+                <span class="name">Coklat Blend Milk</span>
+                <span class="price">Rp 12.000</span>
+                <button class="btn-add" onclick="createPending('Coklat Blend Milk', 12000)">+</button>
+            </div>
+            <div class="menu-card glass">
+                <span class="name">Vanilla Blend</span>
+                <span class="price">Rp 10.000</span>
+                <button class="btn-add" onclick="createPending('Vanilla Blend', 10000)">+</button>
+            </div>
         </div>
-        <div id="history-list" style="margin-top:20px"></div>
-    </div>
+    </section>
 
-    <div class="checkout-bar" id="checkout-bar">
-        <div>Total: <strong id="current-total">Rp 0</strong> (<span id="cart-count">0</span> item)</div>
-        <button class="btn-checkout" onclick="processOrder()">Simpan</button>
-    </div>
+    <section class="history-section glass">
+        <div class="hist-header">
+            <h2 class="label">📜 Riwayat & Total Penghasilan</h2>
+            <div class="income-badge">Omset: <span id="total-income">Rp 0</span></div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jam</th>
+                        <th>Menu</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+            </table>
+        </div>
+        <button class="btn-reset" onclick="resetHistory()">Reset Riwayat</button>
+    </section>
+</div>
 
-    <script src="script.js"></script>
+<audio id="bgMusic" loop src="Musik.mp3"></audio>
+<script src="script.js"></script>
 </body>
 </html>
