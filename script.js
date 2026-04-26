@@ -1,113 +1,101 @@
-const menuData = [
-    { id: 1, name: "Nasi Chiken BaBol", price: 18000, cat: "makanan" },
-    { id: 2, name: "Burger Kamu", price: 20000, cat: "makanan" },
-    { id: 3, name: "Nasi Goreng", price: 15000, cat: "makanan" },
-    { id: 4, name: "Mitcha Sobat", price: 10000, cat: "minuman" },
-    { id: 5, name: "Es Jeruk", price: 7000, cat: "minuman" },
-    { id: 6, name: "Nutrisari", price: 7000, cat: "minuman" }
-];
+let pendingList = [];
+let historyLogs = JSON.parse(localStorage.getItem('sobat_v4_logs')) || [];
 
-let cart = [];
-let allOrders = JSON.parse(localStorage.getItem('sobatPOS_Final')) || [];
+// 1. Tambah Pesanan ke Antrean (Pending)
+function createPending(name, price) {
+    const id = Date.now();
+    pendingList.push({ id, name, price, status: "Belum Selesai" });
+    renderPending();
+}
 
-function renderMenu() {
-    const foodDiv = document.getElementById('food-menu');
-    const drinkDiv = document.getElementById('drink-menu');
-    foodDiv.innerHTML = ""; drinkDiv.innerHTML = "";
-    
-    menuData.forEach(item => {
-        const card = `
-            <div class="menu-card">
-                <h4>${item.name}</h4>
-                <p class="menu-price">Rp ${item.price.toLocaleString()}</p>
-                <button class="btn-add" onclick="addToCart(${item.id})">Tambah</button>
-            </div>`;
-        if(item.cat === 'makanan') foodDiv.innerHTML += card;
-        else drinkDiv.innerHTML += card;
+// 2. Render Daftar Pesanan Pending
+function renderPending() {
+    const container = document.getElementById('pending-orders');
+    container.innerHTML = '';
+
+    if (pendingList.length === 0) {
+        container.innerHTML = '<p class="empty-text">Tidak ada antrean pesanan.</p>';
+        return;
+    }
+
+    pendingList.forEach(order => {
+        container.innerHTML += `
+            <div class="order-box glass">
+                <p><strong>${order.name}</strong></p>
+                <p>Harga: Rp ${order.price.toLocaleString()}</p>
+                <p style="color: #ffeb3b; font-size: 0.7rem;">⚠️ Belum Diantar</p>
+                <div class="action-row">
+                    <button class="btn-done" onclick="completeOrder(${order.id})">SELESAI</button>
+                    <button class="btn-cancel" onclick="cancelOrder(${order.id})">BATAL</button>
+                </div>
+            </div>
+        `;
     });
 }
 
-function addToCart(id) {
-    const item = menuData.find(m => m.id === id);
-    cart.push(item);
-    updateCartUI();
+// 3. Pesanan Selesai (Masuk Riwayat & Hitung Penghasilan)
+function completeOrder(id) {
+    const index = pendingList.findIndex(o => o.id === id);
+    if (index !== -1) {
+        const order = pendingList[index];
+        const log = {
+            jam: new Date().toLocaleTimeString('id-ID'),
+            menu: order.name,
+            total: order.price,
+            status: "SUKSES"
+        };
+        historyLogs.push(log);
+        localStorage.setItem('sobat_v4_logs', JSON.stringify(historyLogs));
+        pendingList.splice(index, 1);
+        
+        renderPending();
+        renderHistory();
+    }
 }
 
-function updateCartUI() {
-    const total = cart.reduce((s, i) => s + i.price, 0);
-    document.getElementById('cart-count').innerText = cart.length;
-    document.getElementById('current-total').innerText = "Rp " + total.toLocaleString();
+// 4. Batalkan Pesanan
+function cancelOrder(id) {
+    if (confirm("Batalkan pesanan ini?")) {
+        pendingList = pendingList.filter(o => o.id !== id);
+        renderPending();
+    }
 }
 
-function processOrder() {
-    if (cart.length === 0) return alert("Keranjang kosong!");
-    const newOrder = {
-        id: Date.now(),
-        items: [...cart],
-        total: cart.reduce((s, i) => s + i.price, 0),
-        status: 'pending',
-        time: new Date().toLocaleTimeString()
-    };
-    allOrders.unshift(newOrder);
-    localStorage.setItem('sobatPOS_Final', JSON.stringify(allOrders));
-    cart = []; updateCartUI();
-    alert("Pesanan Disimpan!");
-    renderHistory();
-}
-
-function updateStatus(orderId, status) {
-    allOrders = allOrders.map(o => o.id === orderId ? {...o, status} : o);
-    localStorage.setItem('sobatPOS_Final', JSON.stringify(allOrders));
-    renderHistory();
-}
-
+// 5. Render Riwayat & Total Penghasilan
 function renderHistory() {
-    const list = document.getElementById('history-list');
-    const incomeDisplay = document.getElementById('total-income');
-    list.innerHTML = "";
+    const body = document.getElementById('history-body');
+    const incomeEl = document.getElementById('total-income');
+    body.innerHTML = '';
     let totalIncome = 0;
 
-    allOrders.forEach(order => {
-        if(order.status === 'done') totalIncome += order.total;
-        
-        // Logika Pengelompokan Item & Kategori
-        const groupItems = (items) => {
-            const counts = {};
-            items.forEach(i => counts[i.name] = (counts[i.name] || 0) + 1);
-            return Object.entries(counts).map(([name, qty]) => `${name} (x${qty})`);
-        };
-
-        const makanan = groupItems(order.items.filter(i => i.cat === 'makanan'));
-        const minuman = groupItems(order.items.filter(i => i.cat === 'minuman'));
-
-        list.innerHTML += `
-            <div class="order-item status-${order.status}">
-                <div class="order-header">
-                    <span class="badge">${order.status === 'pending' ? 'Belum Diantar' : order.status}</span>
-                    <small>${order.time}</small>
-                </div>
-                
-                <div class="order-details">
-                    ${makanan.length ? `<p><strong>🍴 Makanan:</strong> ${makanan.join(", ")}</p>` : ''}
-                    ${minuman.length ? `<p><strong>🥤 Minuman:</strong> ${minuman.join(", ")}</p>` : ''}
-                </div>
-                <p class="order-total">Total: Rp ${order.total.toLocaleString()}</p>
-                
-                ${order.status === 'pending' ? `
-                    <div class="action-btns">
-                        <button class="btn-status btn-done" onclick="updateStatus(${order.id}, 'done')">Selesai</button>
-                        <button class="btn-status btn-cancel" onclick="updateStatus(${order.id}, 'canceled')">Batal</button>
-                    </div>` : ''}
-            </div>`;
+    historyLogs.slice().reverse().forEach(log => {
+        totalIncome += log.total;
+        body.innerHTML += `
+            <tr>
+                <td>${log.jam}</td>
+                <td>${log.menu}</td>
+                <td style="color: #ffeb3b;">Rp ${log.total.toLocaleString()}</td>
+                <td><span style="color: #2ecc71;">${log.status}</span></td>
+            </tr>
+        `;
     });
-    incomeDisplay.innerText = "Rp " + totalIncome.toLocaleString();
+
+    incomeEl.innerText = "Rp " + totalIncome.toLocaleString();
 }
 
-function showTab(tab) {
-    document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(`${tab}-tab`).classList.add('active');
-    event.currentTarget.classList.add('active');
-    document.getElementById('checkout-bar').style.display = (tab === 'order') ? 'flex' : 'none';
+function resetHistory() {
+    if (confirm("Hapus semua riwayat dan reset penghasilan?")) {
+        localStorage.removeItem('sobat_v4_logs');
+        historyLogs = [];
+        renderHistory();
+    }
 }
 
-renderMenu(); renderHistory();
+// Inisialisasi
+window.onload = () => {
+    renderHistory();
+    setInterval(() => {
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID');
+    }, 1000);
+    document.addEventListener('click', () => document.getElementById('bgMusic').play(), {once: true});
+};
