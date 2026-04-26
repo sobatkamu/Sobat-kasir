@@ -1,117 +1,126 @@
-let currentOrder = {};
-let saleHistory = JSON.parse(localStorage.getItem('sobat_history')) || [];
+let cartData = {};
+let posLogs = JSON.parse(localStorage.getItem('sobat_pos_data')) || [];
 
-function addToOrder(name, price) {
-    if (currentOrder[name]) {
-        currentOrder[name].qty += 1;
+// 1. Tambah/Update Pesanan
+function updateCart(name, price) {
+    if (cartData[name]) {
+        cartData[name].qty += 1;
+        cartData[name].status = 'active';
     } else {
-        currentOrder[name] = { price, qty: 1, status: 'active' };
+        cartData[name] = { price, qty: 1, status: 'active' };
     }
-    renderOrder();
+    refreshUI();
 }
 
-function reduceItem(name) {
-    if (currentOrder[name]) {
-        currentOrder[name].qty -= 1;
-        if (currentOrder[name].qty <= 0) {
-            currentOrder[name].status = 'canceling';
+// 2. Kurangi & Timer Batal 10 Detik
+function removeQty(name) {
+    if (cartData[name]) {
+        cartData[name].qty -= 1;
+        if (cartData[name].qty <= 0) {
+            cartData[name].status = 'pending_cancel';
             setTimeout(() => {
-                if (currentOrder[name] && currentOrder[name].status === 'canceling') {
-                    delete currentOrder[name];
-                    renderOrder();
+                if (cartData[name] && cartData[name].status === 'pending_cancel') {
+                    delete cartData[name];
+                    refreshUI();
                 }
-            }, 10000); // 10 Detik
+            }, 10000);
         }
     }
-    renderOrder();
+    refreshUI();
 }
 
-function renderOrder() {
+// 3. Sinkronisasi Antarmuka
+function refreshUI() {
     const list = document.getElementById('order-list');
     list.innerHTML = '';
     let total = 0;
 
-    for (let name in currentOrder) {
-        const item = currentOrder[name];
-        if (item.status === 'active') total += item.price * item.qty;
+    for (let key in cartData) {
+        const item = cartData[key];
+        const isPending = item.status === 'pending_cancel';
+        if (!isPending) total += item.price * item.qty;
 
         list.innerHTML += `
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px">
-                <span>${name} (x${item.qty})</span>
-                <button onclick="reduceItem('${name}')" style="background:red; color:white; border:none; border-radius:5px">-</button>
+            <div class="pay-row" style="opacity: ${isPending ? '0.4' : '1'}">
+                <span>${key} ${isPending ? '(Batal...)' : '(x' + item.qty + ')'}</span>
+                <button onclick="removeQty('${key}')" style="background:red; border:none; color:white; border-radius:5px; padding:2px 8px; cursor:pointer">-</button>
             </div>
         `;
     }
     document.getElementById('grand-total').innerText = "Rp " + total.toLocaleString();
-    calculateChange();
+    syncCalc();
 }
 
-function calculateChange() {
+// 4. Kalkulator Otomatis
+function syncCalc() {
     const total = parseInt(document.getElementById('grand-total').innerText.replace(/\D/g,''));
-    const cash = parseInt(document.getElementById('cash-input').value) || 0;
+    const cash = parseInt(document.getElementById('cash-in').value) || 0;
     const change = cash - total;
-    document.getElementById('change-display').innerText = "Rp " + (change < 0 ? 0 : change).toLocaleString();
+    document.getElementById('change-out').innerText = "Rp " + (change < 0 ? 0 : change.toLocaleString());
 }
 
-function finalizeTransaction() {
+// 5. Simpan Transaksi
+function finishOrder() {
     const total = parseInt(document.getElementById('grand-total').innerText.replace(/\D/g,''));
     if (total <= 0) return alert("Pilih menu dulu!");
 
     const record = {
-        waktu: new Date().toLocaleString('id-ID'),
-        tanggal: new Date().toLocaleDateString('id-ID'),
+        jam: new Date().toLocaleTimeString('id-ID'),
+        tgl: new Date().toLocaleDateString('id-ID'),
         total: total
     };
 
-    saleHistory.push(record);
-    localStorage.setItem('sobat_history', JSON.stringify(saleHistory));
+    posLogs.push(record);
+    localStorage.setItem('sobat_pos_data', JSON.stringify(posLogs));
     
-    currentOrder = {};
-    document.getElementById('cash-input').value = '';
+    cartData = {};
+    document.getElementById('cash-in').value = '';
     alert("Transaksi Selesai!");
-    renderOrder();
-    renderHistory();
-    updateChart();
+    refreshUI();
+    loadHistory();
+    drawChart();
 }
 
-function exportToExcel() {
-    const ws = XLSX.utils.json_to_sheet(saleHistory);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Laporan");
-    XLSX.writeFile(wb, "Laporan_SobatKasir.xlsx");
-}
-
-// Inisialisasi Grafik & Musik
-window.onload = () => {
-    renderHistory();
-    updateChart();
-    document.addEventListener('click', () => document.getElementById('bgMusic').play(), {once:true});
-};
-
-function renderHistory() {
-    const body = document.getElementById('history-body');
-    body.innerHTML = saleHistory.slice(-5).reverse().map(h => `
-        <tr><td>${h.waktu}</td><td>Rp ${h.total.toLocaleString()}</td></tr>
+// 6. Grafik & Laporan
+function loadHistory() {
+    const body = document.getElementById('history-rows');
+    body.innerHTML = posLogs.slice(-5).reverse().map(l => `
+        <tr><td>${l.jam}</td><td>Rp ${l.total.toLocaleString()}</td></tr>
     `).join('');
 }
 
-function updateChart() {
+let chartRef;
+function drawChart() {
     const ctx = document.getElementById('salesChart').getContext('2d');
     const today = new Date().toLocaleDateString('id-ID');
-    const totalToday = saleHistory.filter(h => h.tanggal === today).reduce((a,b) => a + b.total, 0);
+    const todayTotal = posLogs.filter(l => l.tgl === today).reduce((a, b) => a + b.total, 0);
 
-    new Chart(ctx, {
+    if (chartRef) chartRef.destroy();
+    chartRef = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Hari Ini'],
-            datasets: [{ label: 'Omset Rp', data: [totalToday], backgroundColor: '#0061f2' }]
+            labels: ['Omset Hari Ini'],
+            datasets: [{ label: 'Rupiah', data: [todayTotal], backgroundColor: '#0061f2' }]
         }
     });
 }
 
-function resetData() {
-    if(confirm("Hapus semua data?")) {
-        localStorage.removeItem('sobat_history');
-        location.reload();
-    }
+function exportData() {
+    const ws = XLSX.utils.json_to_sheet(posLogs);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Laporan");
+    XLSX.writeFile(wb, "Rekap_SobatKasir.xlsx");
 }
+
+function clearData() { if(confirm("Hapus riwayat?")) { localStorage.clear(); location.reload(); } }
+
+// Loop Utama
+setInterval(() => {
+    document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID');
+    document.getElementById('display-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
+}, 1000);
+
+window.onload = () => {
+    loadHistory(); drawChart();
+    document.addEventListener('click', () => document.getElementById('bgMusic').play(), {once: true});
+};
