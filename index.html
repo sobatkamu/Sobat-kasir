@@ -3,103 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Kasir PRO</title>
+    <title>Rekap Sobat Kasir</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body class="kasir-body">
+<body class="rekap-body">
 
 <div class="app-container">
-    <header class="main-header glass">
-        <div class="brand-logo">
-            <h1>Sobat <span>Kasir</span></h1>
-            <p id="display-date"></p>
-        </div>
-        <div class="digital-clock" id="live-clock">00:00:00</div>
+    <header class="header-main glass">
+        <h1>Rekap Mingguan</h1>
+        <p id="range-minggu">Memuat periode...</p>
     </header>
 
-    <div class="main-grid">
-        <section class="menu-container">
-            <div class="cat-wrapper">
-                <h2 class="section-title">🍴 Makanan & Snack</h2>
-                <div class="item-grid">
-                    <button class="menu-card" onclick="updateCart('Nasi BaBol', 18000)">
-                        <span class="name">Nasi BaBol</span>
-                        <span class="price">Rp 18.000</span>
-                    </button>
-                    <button class="menu-card" onclick="updateCart('Roti Bakar', 10000)">
-                        <span class="name">Roti Bakar</span>
-                        <span class="price">Rp 10.000</span>
-                    </button>
-                    <button class="menu-card" onclick="updateCart('Burger Komplit', 35000)">
-                        <span class="name">Burger Komplit</span>
-                        <span class="price">Rp 35.000</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="cat-wrapper">
-                <h2 class="section-title">🥤 Minuman Blend</h2>
-                <div class="item-grid">
-                    <button class="menu-card drink" onclick="updateCart('Coklat Milk', 12000)">
-                        <span class="name">Coklat Milk</span>
-                        <span class="price">Rp 12.000</span>
-                    </button>
-                    <button class="menu-card drink" onclick="updateCart('Vanilla Blend', 10000)">
-                        <span class="name">Vanilla Blend</span>
-                        <span class="price">Rp 10.000</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <aside class="billing-panel glass">
-            <h3>Pesanan Aktif</h3>
-            <div id="order-list" class="order-box">
-                <p class="placeholder-text">Belum ada pesanan</p>
-            </div>
-
-            <div class="payment-details">
-                <div class="pay-row">
-                    <span>Total Keseluruhan</span>
-                    <span id="grand-total">Rp 0</span>
-                </div>
-                <div class="pay-row">
-                    <span>Tunai</span>
-                    <input type="number" id="cash-in" placeholder="0" oninput="syncCalc()">
-                </div>
-                <div class="pay-row highlight">
-                    <span>Kembalian</span>
-                    <span id="change-out">Rp 0</span>
-                </div>
-                <button class="btn-confirm" onclick="finishOrder()">Selesaikan Transaksi</button>
-            </div>
-        </aside>
-    </div>
-
-    <section class="report-area glass">
-        <div class="report-nav">
-            <h3>📊 Rekap Data & Grafik</h3>
-            <div class="report-actions">
-                <button class="btn-util" onclick="exportData()">Export Excel</button>
-                <button class="btn-util btn-danger" onclick="clearData()">Reset</button>
-            </div>
+    <section class="stats-grid">
+        <div class="stat-card glass">
+            <small>Total Omset Minggu Ini</small>
+            <h2 id="omset-minggu">Rp 0</h2>
         </div>
-        <div class="report-main">
-            <div class="chart-box"><canvas id="salesChart"></canvas></div>
-            <div class="table-box">
-                <table>
-                    <thead><tr><th>Waktu</th><th>Total</th></tr></thead>
-                    <tbody id="history-rows"></tbody>
-                </table>
-            </div>
+        <div class="stat-card glass">
+            <small>Menu Terlaris</small>
+            <h2 id="top-menu">-</h2>
         </div>
     </section>
+
+    <h2 class="section-label">📊 Performa Per Menu</h2>
+    <div id="menu-performance-list" class="performance-container">
+        </div>
+
+    <section class="chart-section glass">
+        <h3>Grafik Penjualan 7 Hari Terakhir</h3>
+        <canvas id="weeklyChart"></canvas>
+    </section>
+
+    <div class="action-bar">
+        <button class="btn-yellow" onclick="exportLaporan()">Unduh Laporan (Excel)</button>
+        <button class="btn-outline" onclick="window.location.href='kasir.html'">Kembali ke Kasir</button>
+    </div>
 </div>
 
-<audio id="bgMusic" loop src="Musik.mp3"></audio>
-<script src="script.js"></script>
+<script src="rekap.js"></script>
 </body>
 </html>
