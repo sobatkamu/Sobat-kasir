@@ -1,16 +1,19 @@
-let pendingList = [];
+// Mengambil data dari LocalStorage atau buat array kosong jika baru
 let historyLogs = JSON.parse(localStorage.getItem('sobat_v4_logs')) || [];
+let pendingList = [];
 
-// 1. Tambah Pesanan ke Antrean (Pending)
+// 1. Fungsi Tambah Pesanan ke Antrean (Pending)
 function createPending(name, price) {
     const id = Date.now();
-    pendingList.push({ id, name, price, status: "Belum Selesai" });
+    pendingList.push({ id, name, price });
     renderPending();
 }
 
-// 2. Render Daftar Pesanan Pending
+// 2. Tampilkan Daftar Pesanan yang Belum Selesai
 function renderPending() {
     const container = document.getElementById('pending-orders');
+    if (!container) return; // Guard agar tidak error jika id tidak ada
+
     container.innerHTML = '';
 
     if (pendingList.length === 0) {
@@ -21,9 +24,11 @@ function renderPending() {
     pendingList.forEach(order => {
         container.innerHTML += `
             <div class="order-box glass">
-                <p><strong>${order.name}</strong></p>
-                <p>Harga: Rp ${order.price.toLocaleString()}</p>
-                <p style="color: #ffeb3b; font-size: 0.7rem;">⚠️ Belum Diantar</p>
+                <div class="order-info">
+                    <p><strong>${order.name}</strong></p>
+                    <p class="price-text">Rp ${order.price.toLocaleString()}</p>
+                    <span class="status-label">⚠️ Belum Selesai</span>
+                </div>
                 <div class="action-row">
                     <button class="btn-done" onclick="completeOrder(${order.id})">SELESAI</button>
                     <button class="btn-cancel" onclick="cancelOrder(${order.id})">BATAL</button>
@@ -33,19 +38,22 @@ function renderPending() {
     });
 }
 
-// 3. Pesanan Selesai (Masuk Riwayat & Hitung Penghasilan)
+// 3. Pindahkan dari Pending ke Riwayat (Hitung Omset)
 function completeOrder(id) {
     const index = pendingList.findIndex(o => o.id === id);
     if (index !== -1) {
         const order = pendingList[index];
         const log = {
-            jam: new Date().toLocaleTimeString('id-ID'),
+            jam: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
             menu: order.name,
             total: order.price,
             status: "SUKSES"
         };
+        
         historyLogs.push(log);
         localStorage.setItem('sobat_v4_logs', JSON.stringify(historyLogs));
+        
+        // Hapus dari antrean
         pendingList.splice(index, 1);
         
         renderPending();
@@ -53,29 +61,32 @@ function completeOrder(id) {
     }
 }
 
-// 4. Batalkan Pesanan
+// 4. Batalkan Pesanan (Hapus dari Antrean saja)
 function cancelOrder(id) {
-    if (confirm("Batalkan pesanan ini?")) {
+    if (confirm("Hapus pesanan ini dari antrean?")) {
         pendingList = pendingList.filter(o => o.id !== id);
         renderPending();
     }
 }
 
-// 5. Render Riwayat & Total Penghasilan
+// 5. Tampilkan Riwayat & Kalkulasi Penghasilan
 function renderHistory() {
     const body = document.getElementById('history-body');
     const incomeEl = document.getElementById('total-income');
+    if (!body || !incomeEl) return;
+
     body.innerHTML = '';
     let totalIncome = 0;
 
+    // Menampilkan riwayat dari yang terbaru di atas
     historyLogs.slice().reverse().forEach(log => {
         totalIncome += log.total;
         body.innerHTML += `
             <tr>
                 <td>${log.jam}</td>
                 <td>${log.menu}</td>
-                <td style="color: #ffeb3b;">Rp ${log.total.toLocaleString()}</td>
-                <td><span style="color: #2ecc71;">${log.status}</span></td>
+                <td class="yellow-text">Rp ${log.total.toLocaleString()}</td>
+                <td><span class="badge-success">${log.status}</span></td>
             </tr>
         `;
     });
@@ -83,19 +94,29 @@ function renderHistory() {
     incomeEl.innerText = "Rp " + totalIncome.toLocaleString();
 }
 
+// 6. Reset Data Riwayat
 function resetHistory() {
-    if (confirm("Hapus semua riwayat dan reset penghasilan?")) {
+    if (confirm("Semua data riwayat dan omset akan dihapus. Lanjutkan?")) {
         localStorage.removeItem('sobat_v4_logs');
         historyLogs = [];
         renderHistory();
     }
 }
 
-// Inisialisasi
-window.onload = () => {
+// 7. Inisialisasi Saat Halaman Dimuat
+document.addEventListener('DOMContentLoaded', () => {
     renderHistory();
+    renderPending();
+
+    // Jalankan Jam Digital
     setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID');
+        const clockEl = document.getElementById('clock');
+        if (clockEl) clockEl.innerText = new Date().toLocaleTimeString('id-ID');
     }, 1000);
-    document.addEventListener('click', () => document.getElementById('bgMusic').play(), {once: true});
-};
+
+    // Audio Playback
+    document.addEventListener('click', () => {
+        const bgm = document.getElementById('bgMusic');
+        if (bgm && bgm.paused) bgm.play().catch(e => console.log("Audio waiting for interaction"));
+    }, { once: true });
+});
