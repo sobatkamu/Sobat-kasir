@@ -3,80 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Kasir - Liquid Style</title>
+    <title>Sobat Kamu POS</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend&display=swap" rel="stylesheet">
 </head>
-<body class="kasir-body">
-
-<div class="app-container">
-    <header class="main-header">
-        <h1>Sobat <span>Kasir</span></h1>
-        <p>Teman Setia Harimu</p>
+<body>
+    <header>
+        <h2>Sobat <Span>Kasir</Span></h2>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('order')">Order</button>
+            <button class="tab-btn" onclick="showTab('history')">Riwayat</button>
+        </div>
     </header>
 
-    <main class="pos-grid">
-        <section class="menu-area">
-            <h2 class="cat-title">🍴 Makanan & Snack</h2>
-            <div class="menu-wrapper">
-                <div class="menu-card">
-                    <span class="name">Nasi Chiken BaBol</span>
-                    <span class="price">Rp 18.000</span>
-                    <div class="card-action">
-                        <button class="btn-yellow" onclick="addToCart('Nasi BaBol', 18000)">+</button>
-                    </div>
-                </div>
-                <div class="menu-card">
-                    <span class="name">Roti Bakar</span>
-                    <span class="price">Rp 10.000</span>
-                    <div class="card-action">
-                        <button class="btn-yellow" onclick="addToCart('Roti Bakar', 10000)">+</button>
-                    </div>
-                </div>
-            </div>
+    <div id="order-tab" class="tab-content active">
+        <h3>🍴 Makanan</h3>
+        <div class="menu-grid" id="food-menu"></div>
+        <h3 style="margin-top:20px">🥤 Minuman</h3>
+        <div class="menu-grid" id="drink-menu"></div>
+    </div>
 
-            <h2 class="cat-title">🥤 Minuman Blend</h2>
-            <div class="menu-wrapper">
-                <div class="menu-card">
-                    <span class="name">Coklat Blend Milk</span>
-                    <span class="price">Rp 12.000</span>
-                    <div class="card-action">
-                        <button class="btn-yellow" onclick="addToCart('Coklat Blend Milk', 12000)">+</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <aside class="billing-area liquid-glass">
-            <h3>Pesanan Aktif</h3>
-            <div id="active-items" class="scroll-area">
-                <p class="empty">Belum ada item.</p>
-            </div>
-
-            <div class="calc-panel">
-                <div class="bill-row"><span>Total</span><span id="total-price">Rp 0</span></div>
-                <div class="bill-row"><span>Tunai</span><input type="number" id="cash-input" oninput="calculate()"></div>
-                <div class="bill-row yellow"><span>Kembali</span><span id="change-price">Rp 0</span></div>
-                <button class="btn-finish" onclick="finalize()">Selesaikan Transaksi</button>
-            </div>
-        </aside>
-    </main>
-
-    <footer class="history-area liquid-glass">
-        <div class="hist-head">
-            <h3>📜 Riwayat Pembelian</h3>
-            <button onclick="downloadExcel()">Simpan Excel</button>
+    <div id="history-tab" class="tab-content">
+        <div style="background:var(--royal-blue); color:white; padding:15px; border-radius:10px; text-align:center">
+            <p>Total Pemasukan (Selesai)</p>
+            <h2 id="total-income">Rp 0</h2>
         </div>
-        <div class="table-container">
-            <table>
-                <tbody id="history-log"></tbody>
-            </table>
-        </div>
-    </footer>
-</div>
+        <div id="history-list" style="margin-top:20px"></div>
+    </div>
 
-<audio id="bgMusic" loop src="Musik.mp3"></audio>
-<script src="script.js"></script>
+    <div class="checkout-bar" id="checkout-bar">
+        <div>Total: <strong id="current-total">Rp 0</strong> (<span id="cart-count">0</span> item)</div>
+        <button class="btn-checkout" onclick="processOrder()">Simpan</button>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
