@@ -21,7 +21,7 @@ body {
     border-radius: 20px;
 }
 
-header { text-align: center; margin-bottom: 20px; }
+header { text-align: center; margin-bottom: 24px; }
 header h1 span { color: var(--bright-yellow); }
 
 .container { max-width: 800px; margin: auto; display: flex; flex-direction: column; gap: 20px; }
