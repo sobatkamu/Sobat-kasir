@@ -79,6 +79,15 @@
         <button class="btn-reset" onclick="resetHistory()">Reset Riwayat</button>
     </section>
 </div>
+</div>
+<div id="cart-bar" class="cart-bar glass shadow hide">
+    <div class="cart-info">
+        <span class="cart-label">🛒 Keranjang:</span>
+        <span id="cart-preview" class="cart-preview">Pilih menu...</span>
+        <div class="cart-total">Total: <span id="cart-total-val">Rp 0</span></div>
+    </div>
+    <button class="btn-order-now" onclick="pushToPending()">PESAN</button>
+</div>
 
 <audio id="bgMusic" loop src="Musik.mp3"></audio>
 <script src="script.js"></script>
