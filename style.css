@@ -27,7 +27,7 @@ header h1 span { color: var(--bright-yellow); }
 .container { max-width: 800px; margin: auto; display: flex; flex-direction: column; gap: 20px; }
 
 /* Pending List (Grouping) */
-.pending-list-wrapper { display: flex; flex-direction: column; gap: 18px; padding: 30px; }
+.pending-list-wrapper { display: flex; flex-direction: column; gap: 25px; padding: 30px; }
 .order-note {
     background: rgba(0, 0, 0, 0.2);
     padding: 15px;
