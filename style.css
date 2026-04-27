@@ -2,63 +2,69 @@
     --sky-blue: #00b4ff;
     --deep-sky: #0084ff;
     --bright-yellow: #ffeb3b;
-    --glass-white: rgba(255, 255, 255, 0.2);
-    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass: rgba(255, 255, 255, 0.2);
+    --border: rgba(255, 255, 255, 0.3);
 }
 
 body {
     background: linear-gradient(135deg, var(--sky-blue), var(--deep-sky));
     background-attachment: fixed;
     font-family: 'Lexend', sans-serif;
-    color: white;
-    margin: 0; padding: 20px;
+    color: white; margin: 0; padding: 20px 20px 120px 20px;
 }
 
 .glass {
-    background: var(--glass-white);
+    background: var(--glass);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid var(--glass-border);
-    border-radius: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-header { text-align: center; margin-bottom: 25px; }
-header h1 span { color: var(--bright-yellow); text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-
-.container { display: flex; flex-direction: column; gap: 25px; max-width: 900px; margin: auto; }
-
-.label { font-size: 1.1rem; margin-bottom: 15px; color: white; display: block; }
-
-/* Pending Orders Area */
-.pending-section { padding: 20px; min-height: 100px; }
-.pending-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
-.order-box {
-    background: rgba(0, 0, 0, 0.15);
-    padding: 15px;
+    border: 1px solid var(--border);
     border-radius: 20px;
-    border-left: 5px solid var(--bright-yellow);
 }
-.order-box p { margin: 5px 0; font-size: 0.9rem; }
-.action-row { display: flex; gap: 10px; margin-top: 10px; }
-.btn-done { background: #2ecc71; color: white; border: none; padding: 8px; border-radius: 10px; cursor: pointer; flex: 1; font-weight: bold; }
-.btn-cancel { background: #e74c3c; color: white; border: none; padding: 8px; border-radius: 10px; cursor: pointer; flex: 1; font-weight: bold; }
 
-/* Menu Grid */
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-.menu-card { padding: 20px; text-align: center; position: relative; }
-.menu-card .name { display: block; font-weight: bold; margin-bottom: 10px; height: 40px; }
-.menu-card .price { display: block; color: var(--bright-yellow); font-weight: bold; margin-bottom: 15px; }
-.btn-add { background: var(--bright-yellow); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; color: #0056b3; cursor: pointer; font-weight: bold; }
+header { text-align: center; margin-bottom: 20px; }
+header h1 span { color: var(--bright-yellow); }
 
-/* History Section */
-.history-section { padding: 20px; }
-.hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.income-badge { background: var(--bright-yellow); color: #0056b3; padding: 10px 20px; border-radius: 15px; font-weight: bold; font-size: 1.2rem; }
+.container { max-width: 800px; margin: auto; display: flex; flex-direction: column; gap: 20px; }
 
-.table-wrap { max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.1); border-radius: 15px; }
-table { width: 100%; border-collapse: collapse; text-align: left; }
-th, td { padding: 12px; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-th { color: var(--bright-yellow); }
+/* Pending List (Grouping) */
+.pending-list-wrapper { display: flex; flex-direction: column; gap: 15px; padding: 15px; }
+.order-note {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 15px;
+    border-left: 6px solid var(--bright-yellow);
+}
+.order-note h4 { margin: 0 0 10px 0; color: var(--bright-yellow); border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.order-note ul { margin: 0; padding: 0 0 0 20px; font-size: 0.9rem; }
+.note-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+.total-note { font-weight: bold; font-size: 1.1rem; }
 
-.btn-reset { margin-top: 15px; background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 10px; border-radius: 10px; cursor: pointer; width: 100%; }
+/* Buttons */
+.btn-done { background: #2ecc71; border: none; color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+.btn-cancel { background: #ff4757; border: none; color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer; margin-left: 10px; }
+
+/* Menu Card */
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.menu-card { padding: 15px; text-align: center; }
+.menu-card .name { display: block; font-size: 0.85rem; font-weight: bold; height: 35px; }
+.menu-card .price { display: block; color: var(--bright-yellow); font-size: 0.9rem; margin: 10px 0; }
+.btn-add { background: var(--bright-yellow); border: none; width: 35px; height: 35px; border-radius: 50%; font-weight: bold; cursor: pointer; color: #0056b3; }
+
+/* Floating Bar */
+.cart-bar {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 500px; z-index: 1000; transition: 0.4s;
+}
+.cart-bar.hide { bottom: -100px; opacity: 0; }
+.cart-content { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+.cart-text { flex: 1; margin-right: 10px; overflow: hidden; }
+#cart-items-preview { display: block; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; }
+.cart-price { font-weight: bold; font-size: 1.1rem; color: var(--bright-yellow); }
+.btn-order { background: var(--bright-yellow); border: none; padding: 10px 15px; border-radius: 12px; font-weight: bold; color: #0056b3; cursor: pointer; }
+
+/* History */
+.income-badge { background: var(--bright-yellow); color: #0056b3; padding: 5px 15px; border-radius: 10px; font-weight: bold; }
+.table-wrap { max-height: 200px; overflow-y: auto; margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+td, th { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
+.btn-reset { width: 100%; margin-top: 10px; background: none; border: 1px solid white; color: white; padding: 8px; border-radius: 10px; cursor: pointer; }
